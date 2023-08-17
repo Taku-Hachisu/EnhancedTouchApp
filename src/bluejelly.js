@@ -306,3 +306,8 @@ Object.defineProperty(BlueJelly, 'MICROBIT_TEMPERATURE_PERIOD', {value: "e95d1b2
 Object.defineProperty(BlueJelly, 'MICROBIT_UART_SERVICE', {value: "6e400001-b5a3-f393-e0a9-e50e24dcca9e", writable: false});
 Object.defineProperty(BlueJelly, 'MICROBIT_TX_CHARACTERISTIC', {value: "6e400002-b5a3-f393-e0a9-e50e24dcca9e", writable: false});
 Object.defineProperty(BlueJelly, 'MICROBIT_RX_CHARACTERISTIC', {value: "6e400003-b5a3-f393-e0a9-e50e24dcca9e", writable: false});
+// ET's GATT definition (ZEAL-LE0)
+// https://musen-connect.co.jp/dl/linble-z1-usermanual.pdf
+Object.defineProperty(BlueJelly, 'ET_SERVICE', {value: "27adc9ca-35eb-465a-9154-b8ff9076f3e8", writable: false});
+Object.defineProperty(BlueJelly, 'ET_TX_CHARACTERISTIC', {value: "27adc9cb-35eb-465a-9154-b8ff9076f3e8", writable: false});
+Object.defineProperty(BlueJelly, 'ET_RX_CHARACTERISTIC', {value: "27adc9cc-35eb-465a-9154-b8ff9076f3e8", writable: false});

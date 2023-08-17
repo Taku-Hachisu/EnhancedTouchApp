@@ -84,6 +84,10 @@ hr{
 .button:active{
   background-color: #f0f0f0;
 }
+.button:disabled {
+  background: #ccc;
+}
+
 
 #chart{
 	margin-bottom: 20px;

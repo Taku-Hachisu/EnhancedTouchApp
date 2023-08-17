@@ -1,0 +1,396 @@
+<!--
+  EnhacedTouch_App
+  BLE UART program for EnhancedTouch (ver.9) logger basded on BlueJelly
+  20230814 Taku Hachisu (hachisu@iit.tsukuba.ac.jp)
+-->
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="Logger for EnhancedTouch ver. 9">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EnhancedTouch (ver. 9) App</title>
+  <link href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="style.css">
+  <script type="text/javascript" src="bluejelly.js"></script>
+</head>
+
+<body>
+  <div class="container">
+
+    <div class="title margin">
+      <p id="title"><a href="./index.html">EnhancedTouch App</a></p>
+      <p id=" subtitle">
+        App for <a href="http://ah.iit.tsukuba.ac.jp/research/enhancedtouch/">EnhancedTouch</a> powered by <a
+          href="https://github.com/electricbaka/bluejelly">BlueJelly</a>
+      </p>
+    </div>
+
+    <div class="contents margin">
+      <h1>Setting</h1>
+      <h2>Connection</h2>
+      <button id="connectDevice" class="button">Connect to a device</button>
+      <button disabled id="disconnectDevice" class="button">Disconnect</button>
+      <br>
+
+      <h2>Acquisition</h2>
+      <button disabled id="startAcquisition" class="button">Start</button>
+      <button disabled id="stopAcquisition" class="button">Stop</button>
+      <br>
+
+      <h2>Visual Feedback</h2>
+      <button disabled id="visualOff" class="button">OFF</button>
+      <button disabled id="visualNormal" class="button">Normal</button>
+      <button disabled id="visualDirection" class="button">Direction</button>
+      <br>
+
+      <h2>Vibration Feedback</h2>
+      <button disabled id="vibrationOff" class="button">OFF</button>
+      <button disabled id="vibrationNormal" class="button">Normal</button>
+      <button disabled id="vibrationDirection" class="button">Direction</button>
+      <hr>
+
+      <h1>Record Setting</h1>
+      <h2>File Name</h2>
+      <input disabled id="fileName" class="button" value="temp" size="20">.csv
+      <br>
+      Set current time as a file name: <button id="getNowTime" class="button">OK</button>
+      <h2>Record</h2>
+      <button disabled id="startRecord" class="button">Start</button>
+      <button disabled id="stopRecord" class="button">Stop</button>
+      <hr>
+
+      <h1>Device Status</h1>
+      <h2>Update Time</h2>
+      <div id="deviceStatusUpdateTime">---</div>
+      <h2>Acquisition</h2>
+      <div id="deviceAcquistion">---</div>
+      <h2>Visual Feedback</h2>
+      <div id="deviceVisualFeedback">---</div>
+      <h2>Vibration Feedback</h2>
+      <div id="deviceVibrationFeedback">---</div>
+      <hr>
+
+      <h1>BLE Status</h1>
+      <h2>Update Time</h2>
+      <div id="bleStatusUpdateTime">---</div>
+      <br>
+      <h2>Device Name</h2>
+      <div id="deviceName">---</div>
+      <br>
+      <h2>Tx Status</h2>
+      <div id="txStatus">---</div>
+      <h2>Tx Data</h2>
+      <div id="txData">---</div>
+      <br>
+      <h2>Rx Status</h2>
+      <div id="rxStatus">---</div>
+      <h2>Rx Header</h2>
+      <div id="rxHeader">---</div>
+      <h2>Rx Data 1</h2>
+      <div id="rxData1">---</div>
+      <h2>Rx Data 2</h2>
+      <div id="rxData2">---</div>
+      <h2>Rx Data 3</h2>
+      <div id="rxData3">---</div>
+      <hr>
+    </div>
+
+    <div class="footer margin">
+      <a href="http://hachisu.net">Taku Hachisu</a><br>
+      <a href="http://ah.iit.tsukuba.ac.jp">Applied Haptics Laboratory</a>, <a
+        href="https://www.tsukuba.ac.jp/"></a>University of Tsukuba</a>
+    </div>
+  </div>
+
+
+  <script>
+    //--------------------------------------------------
+    //Global変数
+    //--------------------------------------------------
+    //BlueJellyのインスタンス生成
+    const ET = new BlueJelly();
+
+    //BLE通信用変数
+    write_value = [];
+    read_value = [];
+
+    //記録関係
+    var isRecording = false;
+    var recordIndex = 0;
+    var recordStartTimeMs;
+    var recordTimeMs = [];
+    var recordPartner = [];
+    var recordEvent = [];
+    var recordArea = [];
+
+    //--------------------------------------------------
+    //CSVファイルの作成とダウンロード
+    //--------------------------------------------------
+    function downloadFile() {
+      let str = "";
+      // ヘッダ
+      str += "index,time[ms],partner,event,area\n";
+      // データの作成
+      for (i = 0; i < recordIndex; i++)
+        str += i + "," + recordTimeMs[i] + "," + recordPartner[i] + "," + recordEvent[i] + "," + recordArea[i] + "\n";
+      // テキスト形式でBlob定義
+      let blob = new Blob([str], { type: "text/csv" });
+      // HTMLのaタグを作成
+      let link = document.createElement('a');
+      // aタグのhref属性を作成
+      link.href = URL.createObjectURL(blob);
+      // aタグのdownload属性を作成
+      link.download = document.getElementById('fileName').value + '.csv';
+      // 定義したaタグをクリック（実行）
+      link.click();
+    }
+
+    //--------------------------------------------------
+    //現在時刻の取得
+    //--------------------------------------------------
+    function getDateAndTimeString(withUnit) {
+      var now = new Date();
+      var YYYY = now.getFullYear().toString();
+      var MM, MM_temp = now.getMonth() + 1;
+      var DD, DD_temp = now.getDate();
+      var hh, hh_temp = now.getHours();
+      var mm, mm_temp = now.getMinutes();
+      var ss, ss_temp = now.getSeconds();
+
+      if (MM_temp.toString().length < 2) MM = 0 + MM_temp.toString(); else MM = MM_temp.toString();
+      if (DD_temp.toString().length < 2) DD = 0 + DD_temp.toString(); else DD = DD_temp.toString();
+      if (hh_temp.toString().length < 2) hh = 0 + hh_temp.toString(); else hh = hh_temp.toString();
+      if (mm_temp.toString().length < 2) mm = 0 + mm_temp.toString(); else mm = mm_temp.toString();
+      if (ss_temp.toString().length < 2) ss = 0 + ss_temp.toString(); else ss = ss_temp.toString();
+
+      if (withUnit)
+        return YYYY + "." + MM + "." + DD + "  " + hh + ":" + mm + ":" + ss;
+      else
+        return YYYY + MM + DD + hh + mm + ss;
+    }
+
+    //--------------------------------------------------
+    //UIの更新
+    //--------------------------------------------------
+    function updateUI(mask) {
+      mask = ~mask;
+      document.getElementById('connectDevice').disabled = mask & 0b10000000;
+      document.getElementById('disconnectDevice').disabled = mask & 0b01000000;
+      document.getElementById('startAcquisition').disabled = mask & 0b00100000;
+      document.getElementById('stopAcquisition').disabled = mask & 0b00010000;
+      document.getElementById('visualOff').disabled = mask & 0b00001000;
+      document.getElementById('visualNormal').disabled = mask & 0b00001000;
+      document.getElementById('visualDirection').disabled = mask & 0b00001000;
+      document.getElementById('vibrationOff').disabled = mask & 0b00001000;
+      document.getElementById('vibrationNormal').disabled = mask & 0b00001000;
+      document.getElementById('vibrationDirection').disabled = mask & 0b00001000;
+      document.getElementById('startRecord').disabled = mask & 0b00000100;
+      document.getElementById('stopRecord').disabled = mask & 0b00000010;
+    }
+
+    //--------------------------------------------------
+    //Device Statusの更新
+    //--------------------------------------------------
+    function updateBLEStatus(dvAc, dvVs, dvVb) {
+      document.getElementById('deviceStatusUpdateTime').innerHTML = getDateAndTimeString(true);
+      if (dvAc != null) document.getElementById('deviceAcquisition').innerHTML = dvAc;
+      if (dvVs != null) document.getElementById('deviceVisualFeedback').innerHTML = dvVs;
+      if (dvVb != null) document.getElementById('deviceVibrationFeedback').innerHTML = dvVb;
+    }
+
+
+    //--------------------------------------------------
+    //BLE Statusの更新
+    //--------------------------------------------------
+    function updateBLEStatus(dvNm, txSt, txDt, rxSt, rxHd, rxD1, rxD2, rxD3) {
+      document.getElementById('bleStatusUpdateTime').innerHTML = getDateAndTimeString(true);
+
+      if (dvNm != null) document.getElementById('deviceName').innerHTML = dvNm;
+      if (txSt != null) document.getElementById('txStatus').innerHTML = txSt;
+      if (txDt != null) document.getElementById('txData').innerHTML = txDt;
+      if (rxSt != null) document.getElementById('rxStatus').innerHTML = rxSt;
+      if (rxHd != null) document.getElementById('rxHeader').innerHTML = rxHd;
+      if (rxD1 != null) document.getElementById('rxData1').innerHTML = rxD1;
+      if (rxD2 != null) document.getElementById('rxData2').innerHTML = rxD2;
+      if (rxD3 != null) document.getElementById('rxData3').innerHTML = rxD3;
+    }
+
+    //--------------------------------------------------
+    //ロード時の処理
+    //--------------------------------------------------
+    window.onload = function () {
+      //UUIDの設定
+      ET.setUUID("UUID_TX", BlueJelly.ET_SERVICE, BlueJelly.ET_RX_CHARACTERISTIC);
+      ET.setUUID("UUID_RX", BlueJelly.ET_SERVICE, BlueJelly.ET_TX_CHARACTERISTIC);
+      //ファイル名に現在時刻を記入
+      document.getElementById('fileName').value = getDateAndTimeString(false);
+    }
+
+
+    //--------------------------------------------------
+    //Scan後の処理
+    //--------------------------------------------------
+    ET.onScan = function (deviceName) {
+      ET.connectGATT('UUID_TX');
+      ET.connectGATT('UUID_RX');
+      updateBLEStatus(deviceName, null, null, null, null, null, null, null);
+    }
+
+    //--------------------------------------------------
+    //ConnectGATT後の処理
+    //--------------------------------------------------
+    ET.onConnectGATT = function (uuid) {
+      switch (uuid) {
+        case "UUID_TX":
+          break;
+        case "UUID_RX":
+          this.startNotify('UUID_RX');
+          updateUI(0b01101000);
+          //updateDeviceStatus();
+          updateBLEStatus(null, "Connected GATT", "Connected GATT", null, null, null, null, null);
+          break;
+        default:
+          break;
+      }
+    }
+
+    //--------------------------------------------------
+    //Reset状態時の処理
+    //--------------------------------------------------
+    ET.onReset = function () {
+      updateUI(0b10000000);
+      updateDeviceStatus('---', '---', '---');
+      updateBLEStatus('---', '---', '---', '---', '---', '---', '---', '---');
+    }
+
+    //--------------------------------------------------
+    //Read後の処理
+    //--------------------------------------------------
+    ET.onRead = function (data, uuid) {
+      //4 byte（32 bit）受信
+      for (let i = 0; i < 4; i++) {
+        read_value[i] = data.getUint8(i);
+      }
+      updateBLEStatus(null, '---', '---', 'Received data', read_value[0], read_value[1], read_value[2], read_value[3]);
+
+      switch (read_value[0]) {
+        case 0xFF:
+          if (isRecording) {
+            recordTimeMs[recordIndex] = performance.now() - recordStartTimeMs;
+            recordPartner[recordIndex] = read_value[1];
+            recordEvent[recordIndex] = read_value[2];
+            recordArea[recordIndex] = read_value[3];
+            recordIndex++;
+          }
+          break;
+        case 0xFE:
+          console.log('Device Status is received');
+          //updateDeviceStatus();
+          if (read_value[1])
+            updateUI(0b01010100);
+          else
+            updateUI(0b01101000);
+          break;
+        default:
+          break;
+      }
+    }
+
+    //--------------------------------------------------
+    //Write後の処理
+    //--------------------------------------------------
+    ET.onWrite = function (uuid) {
+      updateBLEStatus(null, '---', 'Wrote data', write_value, '---', '---', '---', '---');
+    }
+
+    //--------------------------------------------------
+    //Start Notify後の処理
+    //--------------------------------------------------
+    ET.onStartNotify = function (uuid) {
+      updateBLEStatus(null, '---', '---', 'Started notification', '---', '---', '---');
+    }
+
+    //-------------------------------------------------
+    //ボタンが押された時の処理
+    //--------------------------------------------------
+    document.getElementById('connectDevice').addEventListener('click', function () {
+      ET.scan('UUID_RX');
+    });
+
+    document.getElementById('disconnectDevice').addEventListener('click', function () {
+      ET.reset();
+    });
+
+    document.getElementById('startAcquisition').addEventListener('click', function () {
+      write_value = [0x61, 0x31]; // "a1"
+      ET.write('UUID_TX', write_value);
+    });
+
+    document.getElementById('stopAcquisition').addEventListener('click', function () {
+      write_value = [0x61, 0x30]; // "a0"
+      ET.write('UUID_TX', write_value);
+    });
+
+    document.getElementById('visualOff').addEventListener('click', function () {
+      write_value = [0x62, 0x30]; // "b0"
+      ET.write('UUID_TX', write_value);
+    });
+
+    document.getElementById('visualNormal').addEventListener('click', function () {
+      write_value = [0x62, 0x31]; // "b1"
+      ET.write('UUID_TX', write_value);
+    });
+
+    document.getElementById('visualDirection').addEventListener('click', function () {
+      write_value = [0x62, 0x32]; // "b2"
+      ET.write('UUID_TX', write_value);
+    });
+
+    document.getElementById('vibrationOff').addEventListener('click', function () {
+      write_value = [0x63, 0x30]; // "c0"
+      ET.write('UUID_TX', write_value);
+    });
+
+    document.getElementById('vibrationNormal').addEventListener('click', function () {
+      write_value = [0x63, 0x31]; // "c1"
+      ET.write('UUID_TX', write_value);
+    });
+
+    document.getElementById('vibrationDirection').addEventListener('click', function () {
+      write_value = [0x63, 0x32]; // "c2"
+      ET.write('UUID_TX', write_value);
+    });
+
+    document.getElementById('getNowTime').addEventListener('click', function () {
+      document.getElementById('fileName').value = getDateAndTimeString(false);
+    });
+
+    document.getElementById('startRecord').addEventListener('click', function () {
+      // wait until event data stream gets ready
+      while(Number(document.getElementById('rxHeader').textContent) != 255);
+      
+      recordStartTimeMs = performance.now();
+      recordIndex = 0;
+      // record initial data
+      recordTimeMs[recordIndex] = 0.0;
+      recordPartner[recordIndex] = Number(document.getElementById('rxData1').textContent);
+      recordEvent[recordIndex] = Number(document.getElementById('rxData2').textContent);
+      recordArea[recordIndex] = Number(document.getElementById('rxData3').textContent);
+      recordIndex++;
+      isRecording = true;
+      updateUI(0b01000010);
+    });
+
+    document.getElementById('stopRecord').addEventListener('click', function () {
+      isRecording = false;
+      downloadFile();
+      updateUI(0b01000100);
+    });
+
+  </script>
+</body>
+
+</html>
