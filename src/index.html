@@ -24,7 +24,8 @@
       <p id="title"><a href="./index.html">EnhancedTouch App</a></p>
       <p id=" subtitle">
         App for <a href="http://ah.iit.tsukuba.ac.jp/research/enhancedtouch/">EnhancedTouch</a> powered by <a
-          href="https://github.com/electricbaka/bluejelly">BlueJelly</a>
+          href="https://github.com/electricbaka/bluejelly">BlueJelly</a><br>
+          Version 1.0 (Aug. 14, 2023). Latest version is available at <a href="https://github.com/Taku-Hachisu/EnhancedTouchApp">GitHub </a>.
       </p>
     </div>
 
@@ -54,7 +55,7 @@
 
       <h1>Record Setting</h1>
       <h2>File Name</h2>
-      <input disabled id="fileName" class="button" value="temp" size="20">.csv
+      <input id="fileName" class="button" value="temp" size="20">.csv
       <br>
       Set current time as a file name: <button id="getNowTime" class="button">OK</button>
       <h2>Record</h2>
@@ -66,7 +67,7 @@
       <h2>Update Time</h2>
       <div id="deviceStatusUpdateTime">---</div>
       <h2>Acquisition</h2>
-      <div id="deviceAcquistion">---</div>
+      <div id="deviceAcquisition">---</div>
       <h2>Visual Feedback</h2>
       <div id="deviceVisualFeedback">---</div>
       <h2>Vibration Feedback</h2>
@@ -194,11 +195,23 @@
     //--------------------------------------------------
     //Device Statusの更新
     //--------------------------------------------------
-    function updateBLEStatus(dvAc, dvVs, dvVb) {
+    function updateDeviceStatus(dvAc, dvVs, dvVb) {
+      var acSt = ['False', 'True'];
+      var fbSt = ['Off', 'Normal', 'Direction'];
+      
       document.getElementById('deviceStatusUpdateTime').innerHTML = getDateAndTimeString(true);
-      if (dvAc != null) document.getElementById('deviceAcquisition').innerHTML = dvAc;
-      if (dvVs != null) document.getElementById('deviceVisualFeedback').innerHTML = dvVs;
-      if (dvVb != null) document.getElementById('deviceVibrationFeedback').innerHTML = dvVb;
+      if (dvAc < 2) 
+        document.getElementById('deviceAcquisition').innerHTML = acSt[dvAc];
+      else
+        document.getElementById('deviceAcquisition').innerHTML = 'Error';
+      if (dvVs < 3)
+        document.getElementById('deviceVisualFeedback').innerHTML = fbSt[dvVs];
+      else
+        document.getElementById('deviceVisualFeedback').innerHTML = 'Error';
+      if (dvVb < 3)
+        document.getElementById('deviceVibrationFeedback').innerHTML = fbSt[dvVb];
+      else
+        document.getElementById('deviceVibrationFeedback').innerHTML = 'Error';
     }
 
 
@@ -249,7 +262,9 @@
         case "UUID_RX":
           this.startNotify('UUID_RX');
           updateUI(0b01101000);
-          //updateDeviceStatus();
+          // stop acquistion
+          write_value = [0x61, 0x30]; // "a0"
+          ET.write('UUID_TX', write_value);
           updateBLEStatus(null, "Connected GATT", "Connected GATT", null, null, null, null, null);
           break;
         default:
@@ -288,7 +303,7 @@
           break;
         case 0xFE:
           console.log('Device Status is received');
-          //updateDeviceStatus();
+          updateDeviceStatus(read_value[1], read_value[2], read_value[3]);
           if (read_value[1])
             updateUI(0b01010100);
           else
@@ -387,7 +402,7 @@
     document.getElementById('stopRecord').addEventListener('click', function () {
       isRecording = false;
       downloadFile();
-      updateUI(0b01000100);
+      updateUI(0b01010100);
     });
 
   </script>
