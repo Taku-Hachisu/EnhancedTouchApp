@@ -1,4 +1,4 @@
-# BlueJelly
+# EnhancedTouch App
 
 ---
 
