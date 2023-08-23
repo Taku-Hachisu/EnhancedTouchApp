@@ -47,9 +47,14 @@ This is an app for [EnhancedTouch](http://ah.iit.tsukuba.ac.jp/research/enhanced
       - ET10: Arduino (under construction)
 - Turn off the device
 #### Wear the device
+![UI](img/WR.png)
 - Make sure that the electrodes 4 contact with your skin
+  - Make the housing on the palm side of the wrist
+  - You may wear a device on the other side of your wrist if it doesn’t have much hair
+- Make USB port and switch facing to you
 - Turn on the device
   - The device vibrates
+  - If not, charge the device
 
 ### Use App
 ![UI](img/UI.png)
