@@ -53,17 +53,6 @@ html, body {
   display: block; /* ブロック要素にして幅を100%に */
 }
 
-.title suba {
-  color: white; /* リンクの文字色を白に */
-  text-decoration: none; /* リンクの下線をなしに */
-  font-weight: bold; /* フォントを太く */
-}
-
-.title suba:hover {
-  text-decoration: underline; /* マウスオーバー時に下線を表示 */
-}
-
-
 
 /* 通常のボタンスタイル */
 .button {
