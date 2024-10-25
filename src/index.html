@@ -20,81 +20,90 @@
 <body>
   <div class="container">
 
-    <div class="title margin">
-      <p id="title"><a href="./index.html">EnhancedTouch App</a></p>
-      <p id=" subtitle">
-        App for <a href="http://ah.iit.tsukuba.ac.jp/research/enhancedtouch/">EnhancedTouch</a> powered by <a
-          href="https://github.com/electricbaka/bluejelly">BlueJelly</a><br>
-          Version 1.0 (Aug. 14, 2023). Latest version is available at <a href="https://github.com/Taku-Hachisu/EnhancedTouchApp">GitHub </a>.
-      </p>
+
+    <div class="title">
+      <a href="./index.html">EnhancedTouch App</a>
+      <sub> App for <suba href="http://ah.iit.tsukuba.ac.jp/research/enhancedtouch/">EnhancedTouch</suba> powered by
+        <suba href="https://github.com/electricbaka/bluejelly">BlueJelly</suba><br>
+        Version 1.1 (Oct. 25, 2024).<br>
+        Latest version is available at <suba href="https://github.com/Taku-Hachisu/EnhancedTouchApp">GitHub</a>.
+      </sub>
     </div>
 
     <div class="contents margin">
-      <h1>Setting</h1>
-      <h2>Connection</h2>
+      <div id="viewerBox" class="viewer-box">
+        <p>Device Name: <span id="viewerDeviceName">---</span></p>
+        <p>Contact Partner: <span id="viewerContactPartner">---</span></p>
+        <p>Direction: <span id="viewerDirection">---</span></p>
+        <p>Gesture: <span id="viewerGesture">---</span></p>
+      </div>
+      <hr>
+
+      <h2>Setting</h2>
+      <h3>Connection</h3>
       <button id="connectDevice" class="button">Connect to a device</button>
       <button disabled id="disconnectDevice" class="button">Disconnect</button>
       <br>
 
-      <h2>Acquisition</h2>
+      <h3>Acquisition</h3>
       <button disabled id="startAcquisition" class="button">Start</button>
       <button disabled id="stopAcquisition" class="button">Stop</button>
       <br>
 
-      <h2>Visual Feedback</h2>
+      <h3>Visual Feedback</h3>
       <button disabled id="visualOff" class="button">OFF</button>
       <button disabled id="visualNormal" class="button">Normal</button>
       <button disabled id="visualDirection" class="button">Direction</button>
       <br>
 
-      <h2>Vibration Feedback</h2>
+      <h3>Vibration Feedback</h3>
       <button disabled id="vibrationOff" class="button">OFF</button>
       <button disabled id="vibrationNormal" class="button">Normal</button>
       <button disabled id="vibrationDirection" class="button">Direction</button>
       <hr>
 
-      <h1>Record Setting</h1>
-      <h2>File Name</h2>
+      <h2>Record Setting</h2>
+      <h3>File Name</h3>
       <input id="fileName" class="button" value="temp" size="20">.csv
       <br>
       Set current time as a file name: <button id="getNowTime" class="button">OK</button>
-      <h2>Record</h2>
+      <h3>Record</h3>
       <button disabled id="startRecord" class="button">Start</button>
       <button disabled id="stopRecord" class="button">Stop</button>
       <hr>
 
-      <h1>Device Status</h1>
-      <h2>Update Time</h2>
+      <h2>Device Status</h2>
+      <h3>Update Time</h3>
       <div id="deviceStatusUpdateTime">---</div>
-      <h2>Acquisition</h2>
+      <h3>Acquisition</h3>
       <div id="deviceAcquisition">---</div>
-      <h2>Visual Feedback</h2>
+      <h3>Visual Feedback</h3>
       <div id="deviceVisualFeedback">---</div>
-      <h2>Vibration Feedback</h2>
+      <h3>Vibration Feedback</h3>
       <div id="deviceVibrationFeedback">---</div>
       <hr>
 
-      <h1>BLE Status</h1>
-      <h2>Update Time</h2>
+      <h2>BLE Status</h2>
+      <h3>Update Time</h3>
       <div id="bleStatusUpdateTime">---</div>
       <br>
-      <h2>Device Name</h2>
+      <h3>Device Name</h3>
       <div id="deviceName">---</div>
       <br>
-      <h2>Tx Status</h2>
+      <h3>Tx Status</h3>
       <div id="txStatus">---</div>
-      <h2>Tx Data</h2>
+      <h3>Tx Data</h3>
       <div id="txData">---</div>
       <br>
-      <h2>Rx Status</h2>
+      <h3>Rx Status</h3>
       <div id="rxStatus">---</div>
-      <h2>Rx Header</h2>
+      <h3>Rx Header</h3>
       <div id="rxHeader">---</div>
-      <h2>Rx Data 1</h2>
+      <h3>Rx Data 1</h3>
       <div id="rxData1">---</div>
-      <h2>Rx Data 2</h2>
+      <h3>Rx Data 2</h3>
       <div id="rxData2">---</div>
-      <h2>Rx Data 3</h2>
+      <h3>Rx Data 3</h3>
       <div id="rxData3">---</div>
       <hr>
     </div>
@@ -198,9 +207,9 @@
     function updateDeviceStatus(dvAc, dvVs, dvVb) {
       var acSt = ['False', 'True'];
       var fbSt = ['Off', 'Normal', 'Direction'];
-      
+
       document.getElementById('deviceStatusUpdateTime').innerHTML = getDateAndTimeString(true);
-      if (dvAc < 2) 
+      if (dvAc < 2)
         document.getElementById('deviceAcquisition').innerHTML = acSt[dvAc];
       else
         document.getElementById('deviceAcquisition').innerHTML = 'Error';
@@ -221,15 +230,71 @@
     function updateBLEStatus(dvNm, txSt, txDt, rxSt, rxHd, rxD1, rxD2, rxD3) {
       document.getElementById('bleStatusUpdateTime').innerHTML = getDateAndTimeString(true);
 
-      if (dvNm != null) document.getElementById('deviceName').innerHTML = dvNm;
+      // 四角形（Viewerのdiv）の取得
+      var viewerBox = document.getElementById('viewerBox');  // viewerBoxはdiv要素で想定
+
+      // デバイス名の更新
+      if (dvNm != null) {
+        document.getElementById('deviceName').innerHTML = dvNm;
+        document.getElementById('viewerDeviceName').innerHTML = dvNm;
+      }
+
+      // txSt, txDt, rxSt, rxHdの更新
       if (txSt != null) document.getElementById('txStatus').innerHTML = txSt;
       if (txDt != null) document.getElementById('txData').innerHTML = txDt;
       if (rxSt != null) document.getElementById('rxStatus').innerHTML = rxSt;
       if (rxHd != null) document.getElementById('rxHeader').innerHTML = rxHd;
-      if (rxD1 != null) document.getElementById('rxData1').innerHTML = rxD1;
-      if (rxD2 != null) document.getElementById('rxData2').innerHTML = rxD2;
-      if (rxD3 != null) document.getElementById('rxData3').innerHTML = rxD3;
+
+      // rxDataの更新とViewer表示
+      updateViewerField('rxData1', 'viewerContactPartner', rxD1, rxHd);
+      updateViewerField('rxData2', 'viewerDirection', rxD2, rxHd);
+      updateViewerField('rxData3', 'viewerGesture', rxD3, rxHd);
+
+      // 四角形の塗りつぶし色と線の色および名義尺度の更新
+      var viewerDeviceName = document.getElementById('viewerDeviceName').innerHTML;
+      var viewerContactPartner = document.getElementById('viewerContactPartner').innerHTML;
+      var viewerDirection = document.getElementById('viewerDirection').innerHTML;
+      var viewerGesture = document.getElementById('viewerGesture').innerHTML;
+
+      if (viewerDeviceName === "---") {
+        viewerBox.style.backgroundColor = 'gray';  // 塗りつぶしをグレー
+        viewerBox.style.borderColor = 'black';  // 線の色を黒
+        viewerBox.style.borderWidth = '1px';  // 線の太さを通常に
+      } else if (rxHd !== 0xFF) {
+        viewerBox.style.backgroundColor = 'white';  // 塗りつぶしを白
+        viewerBox.style.borderColor = 'black';  // 線の色を黒
+        viewerBox.style.borderWidth = '1px';  // 線の太さを通常に
+      } else if (rxHd === 0xFF && parseInt(viewerContactPartner) >= 1) {
+        viewerBox.style.backgroundColor = 'lightgreen';  // 塗りつぶしを黄緑
+        viewerBox.style.borderColor = 'red';  // 線の色を赤
+        viewerBox.style.borderWidth = '3px';  // 線を太く
+      } else if (rxHd === 0xFF && parseInt(viewerContactPartner) < 1) {
+        viewerBox.style.backgroundColor = 'white';  // 塗りつぶしを白
+        viewerBox.style.borderColor = 'red';  // 線の色を赤
+        viewerBox.style.borderWidth = '3px';  // 線を太く
+      }
+      // Directionに基づく表示
+      if (viewerDirection === "1") document.getElementById('viewerDirection').innerHTML = "Active";
+      if (viewerDirection.innerHTML === "2") document.getElementById('viewerDirection').innerHTML = "Passive";
+      // Gestureに基づく表示
+      if (viewerGesture == "---") document.getElementById('viewerGesture').innerHTML = "---";
+      else if (viewerGesture === '0') document.getElementById('viewerGesture').innerHTML = "No touch";
+      else if (parseInt(viewerGesture) < 73) document.getElementById('viewerGesture').innerHTML = "One fingertip";
+      else if (parseInt(viewerGesture) < 81) document.getElementById('viewerGesture').innerHTML = "Two fingertips";
+      else if (parseInt(viewerGesture) < 88) document.getElementById('viewerGesture').innerHTML = "Four fingers";
+      else document.getElementById('viewerGesture').innerHTML = "Handshake";
     }
+
+    // 共通処理を関数化
+    function updateViewerField(dataId, viewerId, dataValue, rxHd) {
+      document.getElementById(dataId).innerHTML = dataValue;
+      if (rxHd === 0xFF) {
+        document.getElementById(viewerId).innerHTML = dataValue;
+      } else {
+        document.getElementById(viewerId).innerHTML = "---";
+      }
+    }
+
 
     //--------------------------------------------------
     //ロード時の処理
@@ -240,6 +305,7 @@
       ET.setUUID("UUID_RX", BlueJelly.ET_SERVICE, BlueJelly.ET_TX_CHARACTERISTIC);
       //ファイル名に現在時刻を記入
       document.getElementById('fileName').value = getDateAndTimeString(false);
+      updateBLEStatus("---", "---", "---", "---", "---", "---", "---", "---");
     }
 
 
@@ -385,8 +451,8 @@
 
     document.getElementById('startRecord').addEventListener('click', function () {
       // wait until event data stream gets ready
-      while(Number(document.getElementById('rxHeader').textContent) != 255);
-      
+      while (Number(document.getElementById('rxHeader').textContent) != 255);
+
       recordStartTimeMs = performance.now();
       recordIndex = 0;
       // record initial data

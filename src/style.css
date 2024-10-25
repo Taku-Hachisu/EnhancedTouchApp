@@ -1,139 +1,116 @@
 @charset "utf-8";
 /* CSS Document */
 
-/*************************** RESET ***************************/
-
-html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	outline: 0;
-	font-size: 100%;
-	vertical-align: baseline;
-	background: transparent;
+/* RESET STYLES */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-/*************************** RESET ***************************/
-
 
 html, body {
-	height: 100%;
-	width: 100%;
-	font-family: 'Lato', Verdana, "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
-	min-width: 640px;
-	position: relative;
-  background-color: #f0f0f0;
-}
-
-hr{
-  border-width: 1px;
-  border-color: #fff;
-  border-style: solid;
-  margin: 20px 0px 20px 0px;
-}
-
-.container{
-  margin: auto;
+  height: 100%;
   width: 100%;
-  min-height: 100%;
+  font-family: 'Lato', Verdana, "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  background-color: #f4f4f4; /* 背景色をやや薄いグレーに */
+}
+
+.container {
   max-width: 640px;
-  box-shadow: 0px 0px 20px rgba(0,0,0,0.3);
-  background-color: #f0f0f0;
-  position: relative;
-}
-.title{
-  width: 100%;
-  background-color: #fff;
-  padding: 20px 0px 20px 0px;
+  margin: auto;
+  padding: 30px; /* 余白を広めに */
+  background-color: #fff; /* 白の背景 */
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 軽い影を付ける */
 }
 
-.contents{
-  padding: 25px 0px 100px 0px;
+.title {
+  background-color: #5c068c; /* タイトルの背景色 */
+  font-size: 28px; /* タイトルのフォントサイズ */
+  color: white; /* タイトルの文字色 */
+  padding: 20px; /* タイトルの余白 */
+  text-align: left; /* タイトルを左寄せ */
+  margin-bottom: 30px; /* タイトルの余白を広めに */
 }
 
-.footer{
-  width: 100%;
-  font-size:12px;
-  position: absolute;
-  bottom: 0px;
-  height: 60px;
-  color: #9a9a9a;
+.title a {
+  color: white; /* リンクの文字色を白に */
+  text-decoration: none; /* リンクの下線をなしに */
+  font-weight: bold; /* フォントを太く */
 }
 
-.margin{
-  border-left:  70px;
-  border-right: 70px;
-  border-style: solid;
-  box-sizing: border-box;
-  border-color: rgba(0, 0, 0, 0);
+.title a:hover {
+  text-decoration: underline; /* マウスオーバー時に下線を表示 */
 }
 
-.button{
-  border-width: 1px;
-  border-color: #e6e6e6;
-  border-style: solid;
-  background-color: #fff;
-  padding: 5px 20px 5px 20px;
-  color: #4d4d4d;
+.title sub {
+  text-align: right; /* サブタイトルを右寄せ */
+  font-size: 14px; /* サブタイトルのフォントサイズを小さく */
+  color:white; /* 落ち着いたグレー */
+  margin-top: 10px; /* サブタイトルの上の余白 */
+  margin-left: auto; /* 左のマージンを自動に */
+  margin-right: 0; /* 右のマージンを0に */
+  display: block; /* ブロック要素にして幅を100%に */
+}
+
+.title suba {
+  color: white; /* リンクの文字色を白に */
+  text-decoration: none; /* リンクの下線をなしに */
+  font-weight: bold; /* フォントを太く */
+}
+
+.title suba:hover {
+  text-decoration: underline; /* マウスオーバー時に下線を表示 */
+}
+
+
+
+/* 通常のボタンスタイル */
+.button {
+  display: inline-block;
+  padding: 10px 20px;
+  margin: 10px 0; /* ボタンの上下の余白を広めに */
+  border: 1px solid #ccc; /* 落ち着いたグレーのボーダー */
+  border-radius: 4px;
+  background-color: #f9f9f9; /* 薄いグレーの背景 */
+  color: #333;
+  text-align: center;
   font-size: 14px;
-  font-weight: 300;
-  margin: 0px;
+  text-decoration: none;
+  transition: background-color 0.3s, border-color 0.3s;
 }
-.button:hover{
-  border-color: #ccc;
+
+.button:hover {
+  border-color: #bbb; /* マウスオーバー時に少し濃いグレーに */
+  background-color: #eee; /* マウスオーバー時に背景色を少し濃く */
 }
-.button:active{
-  background-color: #f0f0f0;
-}
+
+/* 無効なボタンスタイル */
 .button:disabled {
-  background: #ccc;
+  background: #e0e0e0; /* 無効なボタンの背景色 */
+  color: #999; /* 無効なボタンの文字色 */
+  border: 1px solid #bbb; /* 無効なボタンのボーダー */
+  cursor: not-allowed; /* カーソルを無効表示に */
 }
 
-
-#chart{
-	margin-bottom: 20px;
+.footer {
+  text-align: center;
+  color: #777; /* 薄いグレー */
+  font-size: 12px;
+  margin-top: 20px;
 }
 
-#title{
-  color:#ff8319;
-  font-size: 21px;
-  font-weight: 700;
-  line-height: 2em;
+/* VIEWER BOX STYLES */
+.viewer-box {
+  border: 1px solid #ccc; /* 落ち着いたグレーのボーダー */
+  padding: 20px;
+  margin: 30px auto; /* ボックスの上下の余白を広めに */
+  background-color: #f9f9f9; /* 薄いグレーの背景 */
+  border-radius: 6px;
 }
 
-#subtitle{
-  color:#808080;
-  font-size: 15px;
-  font-weight: 300;
+.viewer-box p {
+  margin: 10px 0; /* ボックス内のテキストの余白 */
+  font-size: 20px; /* フォントサイズはやや小さめ */
+  color:black; /* 落ち着いたグレー */
 }
-
-#data_text, #data_text2{
-  color:#448aff;
-  font-size:72px;
-  font-weight: 300;
-  line-height: 1.5em;
-}
-
-#device_name, #device_name2{
-  color:#ff8319;
-  font-size:36px;
-  font-weight: 300;
-  line-height: 1.5em;
-}
-
-#uuid_name, #uuid_name2{
-  color:#ff8319;
-	font-size:14px;
-  font-weight: 300;
-}
-
-#status, #status2{
-	color:#448aff;
-	font-size:14px;
-  font-weight: 300;
-}
-
-
-
-a { text-decoration: none; }
-a:link { color: #9a9a9a; }
-a:visited { color: #9a9a9a; }
