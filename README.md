@@ -68,3 +68,11 @@ This is an app for [EnhancedTouch](http://ah.iit.tsukuba.ac.jp/research/enhanced
   - Clikc "Stop" to stop recording
   - Then, a record file (csv) will be automatically downloaded
   - You can change the file name as you want
+ 
+## License
+
+This project is licensed under the MIT License.  
+See the [LICENSE](./LICENSE) file for details.
+
+This app is based on [BlueJelly](https://github.com/electricbaka/bluejelly) by electricbaka,  
+which is also licensed under the MIT License.
